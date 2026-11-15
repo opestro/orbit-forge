@@ -3,6 +3,10 @@
 A space mission design game for the NASA Space Apps 2026 challenge "Space Mission Design Game".
 One to four players choose a science goal, design the spacecraft, ground stations and launch, fly the mission, and read why it worked or failed.
 
+**Play it now: https://opestro.github.io/orbit-forge/**
+
+The online version runs on GitHub Pages, which only serves files. Solo play, team play on one screen, the career and share links all work there. Online team rooms and shared rankings need the small server below.
+
 ## Run
 
     node server.mjs
