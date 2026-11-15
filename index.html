@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Orbit Forge: design a space mission</title>
+  <meta name="description" content="Choose a science goal, design the spacecraft, ground stations and launch, fly the mission alone or as a team of four, and find out why it worked or failed.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jura:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    { "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    } }
+  </script>
+</head>
+<body data-screen="title">
+  <canvas id="view" aria-label="3D view of your spacecraft and its planet"></canvas>
+  <div id="flash" aria-hidden="true"></div>
+  <div id="vignette" aria-hidden="true"></div>
+  <div id="confetti" aria-hidden="true"></div>
+
+  <header class="top">
+    <div class="brand"><span class="hex" aria-hidden="true"></span>ORBIT FORGE</div>
+    <ol class="steps" id="steps" aria-label="Mission design steps"></ol>
+    <button class="ghost chip-pilot" id="pilot-chip" type="button" aria-label="Open your service record"></button>
+    <button class="ghost" id="open-about" type="button">How it works</button>
+    <button class="ghost" id="sound" type="button" aria-pressed="true">Sound on</button>
+  </header>
+
+  <main>
+    <section id="title" class="screen" aria-labelledby="logo">
+      <div class="title-box">
+        <p class="eyebrow">NASA Space Apps 2026 · Space mission design game</p>
+        <h1 class="logo" id="logo"><span>ORBIT</span><span>FORGE</span></h1>
+        <p class="lede">Design it. Launch it. Find out why.</p>
+        <button class="launch" id="press-start" type="button">Start</button>
+        <p class="hint">1 to 4 players · press Enter</p>
+      </div>
+      <p class="credits">Earth imagery: NASA GIBS (Suomi NPP VIIRS, Blue Marble) and Sentinel-2 cloudless by EOX (s2maps.eu), which contains modified Copernicus Sentinel data 2016. Star map: NASA. Numbers in the game are simplified for teaching.</p>
+    </section>
+
+    <section id="profile" class="screen" aria-label="Your profile">
+      <form class="panel sheet narrow" id="pilot-form">
+        <p class="eyebrow">Mission control · staff office</p>
+        <h2>Welcome aboard. Who is in charge?</h2>
+        <p class="note">Your name goes on your missions, your team seat and the rankings. It is saved on this device only.</p>
+        <label class="field" for="pilot-name">Your name</label>
+        <input id="pilot-name" maxlength="16" required autocomplete="off" spellcheck="false" placeholder="Type your name">
+        <p class="field" id="patch-label">Mission patch colour</p>
+        <div class="swatches" id="swatches" role="radiogroup" aria-labelledby="patch-label"></div>
+        <div class="id-card" id="id-preview"></div>
+        <div class="actions"><button class="launch" type="submit">Report for duty</button></div>
+      </form>
+    </section>
+
+    <section id="menu" class="screen" aria-labelledby="menu-title">
+      <aside class="panel pilot-card" id="pilot-card" aria-label="Your career"></aside>
+      <div>
+        <p class="eyebrow">Mission board</p>
+        <h1 id="menu-title">Choose your mission</h1>
+        <div class="missions" id="missions"></div>
+        <div class="menu-actions">
+          <form id="join-form" hidden>
+            <label for="join-code">Join a team room</label>
+            <input id="join-code" maxlength="4" placeholder="CODE" autocomplete="off" spellcheck="false">
+            <button class="ghost" type="submit">Join</button>
+          </form>
+          <button class="ghost" id="open-ranks" type="button">Rankings</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="brief" class="screen" aria-label="Mission brief">
+      <div class="panel sheet" id="brief-body"></div>
+    </section>
+
+    <section id="build" class="screen" aria-label="Design the mission">
+      <aside class="panel status" aria-label="Requirements and resources">
+        <p class="eyebrow" id="m-level"></p>
+        <h2 id="m-name"></h2>
+        <p class="brief" id="m-goals"></p>
+        <div class="science" id="science"></div>
+        <div id="reqs"></div>
+        <div id="bars"></div>
+        <div id="team"></div>
+      </aside>
+
+      <aside class="panel shop" aria-label="Parts">
+        <div id="tabs"></div>
+        <p class="tab-help" id="tab-help"></p>
+        <div class="cards" id="cards"></div>
+      </aside>
+
+      <footer class="dock">
+        <button class="ghost" id="back" type="button">Brief</button>
+        <div class="orbi" aria-live="polite">
+          <span class="orbi-face" aria-hidden="true"><i></i><i></i></span>
+          <p><b>ORBI</b> <span id="orbi-text"></span></p>
+        </div>
+        <button class="launch" id="launch" type="button">To the launch pad</button>
+      </footer>
+    </section>
+
+    <section id="ready" class="screen" aria-label="Launch readiness review">
+      <aside class="panel review">
+        <p class="eyebrow">Launch readiness review</p>
+        <label class="field" for="craft-name">Name your spacecraft</label>
+        <input id="craft-name" maxlength="20" autocomplete="off" spellcheck="false" placeholder="For example: Curiosity">
+        <div id="review"></div>
+      </aside>
+      <footer class="dock">
+        <button class="ghost" id="ready-back" type="button">Back to design</button>
+        <div class="orbi" aria-live="polite">
+          <span class="orbi-face" aria-hidden="true"><i></i><i></i></span>
+          <p><b>ORBI</b> <span id="ready-text"></span></p>
+        </div>
+        <button class="launch hold" id="ignite" type="button"><span class="fill" aria-hidden="true"></span><span class="label">Hold to launch</span></button>
+      </footer>
+    </section>
+
+    <section id="flight" class="screen" aria-label="Mission in flight">
+      <div class="flight-top">
+        <p class="clock" id="clock" aria-hidden="true"></p>
+        <ol class="phases" id="phases" aria-label="Flight progress"></ol>
+        <div class="hud" id="hud"></div>
+      </div>
+      <p class="caption" id="caption" aria-live="polite"></p>
+      <div class="panel decision" id="decision" hidden></div>
+      <button class="ghost" id="skip" type="button">Skip to report</button>
+    </section>
+
+    <section id="report" class="screen" aria-label="Mission report">
+      <div class="panel sheet" id="report-body"></div>
+    </section>
+  </main>
+
+  <div class="overlay" id="overlay" hidden>
+    <div class="panel sheet" role="dialog" aria-modal="true">
+      <button class="ghost close" id="overlay-close" type="button">Close</button>
+      <div id="overlay-body"></div>
+    </div>
+  </div>
+
+  <noscript>This game needs JavaScript and WebGL.</noscript>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
